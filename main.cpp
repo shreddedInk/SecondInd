@@ -1,4 +1,5 @@
 #include <iostream>
+#include<time.h>
 
 class Matrix
 {
@@ -7,35 +8,26 @@ private:
     int m;
     double** arr = nullptr;
 public:
-    void setN(int);
-    void setM(int);
     void setElement(int a, int b, double c);
-    
+
     int getN() const;
     int getM() const;
-    double getElement(int,int) const;
+    double getElement(int, int) const;
 
     void clean();
-    double create(int, int);
+    void create(int, int);
+    Matrix(int, int);
 
     void printMas() const;
     void printMas(int, int, int) const;
 
     int swapstr(int, int);
-    int QuickSort(double*, int);
-    void randfill();
-    void fillKeyboard();
+    int swaprow(int, int);
+    int quickSort(int);
+    void randFill();
+    void keyboardFill();
+    int negCount_row(int);
 };
-
-void Matrix::setN(int k)
-{
-    n = k;
-}
-
-void Matrix::setM(int k)
-{
-    m = k;
-}
 
 void Matrix::setElement(int a, int b, double c)
 {
@@ -62,7 +54,7 @@ double Matrix::getElement(int a, int b) const
 
 int Matrix::swapstr(int a, int b)
 {
-    if (a < n and b < m)
+    if (a < n and b < n)
     {
         double* tmp = new double[n];
         tmp = arr[a];
@@ -74,25 +66,53 @@ int Matrix::swapstr(int a, int b)
     else return -1;
 }
 
+int Matrix::swaprow(int a, int b)
+{
+    if (a < m and b < m)
+    {
+        for (int k = 0; k < m; k++)
+        {
+            double tmp = arr[k][a];
+            arr[k][a] = arr[k][b];
+            arr[k][b] = tmp;
+        }
+    }
+    else return -1;
+}
+
 void Matrix::clean()
 {
-    if (arr != nullptr) {
+    if (arr != nullptr)
+    {
         for (int i = 0; i < n; i++)
         {
             if (arr[i] != nullptr) delete[] arr[i];
         }
         delete[] arr;
     }
+    n = 0;
+    m = 0;
+    arr = nullptr;
 }
 
-double Matrix::create(int k, int p)
+Matrix::Matrix(int k, int p)
 {
-    clean();
-
     n = k;
     m = p;
-    arr = new double*[k];
-    for (int i = 0; i < k; i++) 
+    arr = new double* [k];
+    for (int i = 0; i < k; i++)
+    {
+        arr[i] = new double[p];
+        for (int j = 0; j < p; j++) arr[i][j] = 0;
+    }
+}
+
+void Matrix::create(int k, int p)
+{
+    n = k;
+    m = p;
+    arr = new double* [k];
+    for (int i = 0; i < k; i++)
     {
         arr[i] = new double[p];
         for (int j = 0; j < p; j++) arr[i][j] = 0;
@@ -123,67 +143,87 @@ void Matrix::printMas(int a, int b, int rad) const
     }
 }
 
-void Matrix::randfill()
+void Matrix::randFill()
 {
     srand(time(NULL));
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < m; j++)
-            {
-                arr[i][j] = 1 + rand() % 200 - 100;
-            }
-        }
-    printf("\n");
-}
-
-void Matrix::fillKeyboard()
-{
-        for (int i = 0; i < n; i++)
-        {
-            std::cout << "Вводим " << i + 1 << " строку\n";
-            for (int j = 0; j < m; j++)
-            {
-                printf("Введите целое число: ");
-                std::cin >> arr[i][j];
-            }
-        }
-    printf("\n");
-}
-
-int Matrix::QuickSort(double* mas, int size)
-{
-    int i = 0;
-    int j = size - 1;
-
-    int mid = mas[size / 2];
-
-    do 
+    for (int i = 0; i < n; i++)
     {
-        while (mas[i] < mid) 
+        for (int j = 0; j < m; j++)
         {
-            i++;
+            arr[i][j] = 1 + rand() % 200 - 100;
         }
-        while (mas[j] > mid) 
-        {
-            j--;
-        }
-        if (i <= j) 
-        {
-            int tmp = mas[i];
-            mas[i] = mas[j];
-            mas[j] = tmp;
-
-            i++;
-            j--;
-        }
-    } while (i <= j);
-    if (j > 0) 
-    {
-        QuickSort(mas, j + 1); // Левый кусок
     }
-    if (i < size) 
+    printf("\n");
+}
+
+void Matrix::keyboardFill() 
+{
+    for (int i = 0; i < n; i++)
     {
-        QuickSort(&mas[i], size - i); // Правый кусок
+        std::cout << "Вводим " << i + 1 << " строку\n";
+        for (int j = 0; j < m; j++)
+        {
+            printf("Введите целое число: ");
+            std::cin >> arr[i][j];
+        }
+    }
+    printf("\n");
+}
+
+int Matrix::quickSort(int size)
+{
+    if (arr != nullptr)
+    {
+        int i = 0;
+        int j = size-1;
+        int k1 = 0, k2 = 0;
+
+        int mid = negCount_row(arr[n][size / 2]);
+        for (int k = 0; k < n; k++)
+        {
+            do
+            {
+                while (arr[n][i] < mid)
+                {
+                    k1 = negCount_row(i);
+                    i++;
+                }
+                while (arr[n][j] > mid)
+                {
+                    k2 = negCount_row(j);
+                    j--;
+                }
+                if (k2 >= k1)
+                {
+                    swaprow(i, j);
+
+                    i++;
+                    j--;
+                }
+            } while (i <= j);
+            if (j > 0)
+            {
+                quickSort(j + 1); // Левый кусок
+            }
+            if (i < size)
+            {
+                quickSort(size-i); // Правый кусок
+            }
+        }
+    }
+    else return -3;
+}
+
+int Matrix::negCount_row(int a)
+{
+    if (a < m)
+    {
+        double c = 0;
+        for (int j = 0; j < n; j++) 
+        {
+            if (arr[j][a] < 0) c += 1;
+        }
+        return c;
     }
 }
 
