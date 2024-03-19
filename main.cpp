@@ -1,11 +1,16 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
-#include<time.h>
+#include <time.h>
+#include <math.h>
+#include <conio.h>
+#include <stdlib.h>
+using namespace std;
 
 class Matrix
 {
 private:
-    int n;
-    int m;
+    int str;
+    int row;
     double** arr = nullptr;
 public:
     void setElement(int a, int b, double c);
@@ -31,7 +36,7 @@ public:
 
 void Matrix::setElement(int a, int b, double c)
 {
-    if (a < n && b < m)
+    if (a < str && b < row)
     {
         arr[a][b] = c;
     }
@@ -39,12 +44,12 @@ void Matrix::setElement(int a, int b, double c)
 
 int Matrix::getN() const
 {
-    return n;
+    return str;
 }
 
 int Matrix::getM() const
 {
-    return m;
+    return row;
 }
 
 double Matrix::getElement(int a, int b) const
@@ -54,9 +59,9 @@ double Matrix::getElement(int a, int b) const
 
 int Matrix::swapstr(int a, int b)
 {
-    if (a < n and b < n)
+    if (a < str and b < row)
     {
-        double* tmp = new double[n];
+        double* tmp = new double[str];
         tmp = arr[a];
         arr[a] = arr[b];
         arr[b] = tmp;
@@ -68,9 +73,9 @@ int Matrix::swapstr(int a, int b)
 
 int Matrix::swaprow(int a, int b)
 {
-    if (a < m and b < m)
+    if (a < row and b < row)
     {
-        for (int k = 0; k < m; k++)
+        for (int k = 0; k < row; k++)
         {
             double tmp = arr[k][a];
             arr[k][a] = arr[k][b];
@@ -84,21 +89,21 @@ void Matrix::clean()
 {
     if (arr != nullptr)
     {
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < str; i++)
         {
             if (arr[i] != nullptr) delete[] arr[i];
         }
         delete[] arr;
     }
-    n = 0;
-    m = 0;
+    str = 0;
+    row = 0;
     arr = nullptr;
 }
 
 Matrix::Matrix(int k, int p)
 {
-    n = k;
-    m = p;
+    str = k;
+    row = p;
     arr = new double* [k];
     for (int i = 0; i < k; i++)
     {
@@ -109,8 +114,8 @@ Matrix::Matrix(int k, int p)
 
 void Matrix::create(int k, int p)
 {
-    n = k;
-    m = p;
+    str = k;
+    row = p;
     arr = new double* [k];
     for (int i = 0; i < k; i++)
     {
@@ -121,9 +126,9 @@ void Matrix::create(int k, int p)
 
 void Matrix::printMas() const
 {
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < str; i++)
     {
-        for (int j = 0; j < m; j++)
+        for (int j = 0; j < row; j++)
         {
             printf("%.5lf ", arr[i][j]);
         }
@@ -145,10 +150,9 @@ void Matrix::printMas(int a, int b, int rad) const
 
 void Matrix::randFill()
 {
-    srand(time(NULL));
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < str; i++)
     {
-        for (int j = 0; j < m; j++)
+        for (int j = 0; j < row; j++)
         {
             arr[i][j] = 1 + rand() % 200 - 100;
         }
@@ -158,10 +162,10 @@ void Matrix::randFill()
 
 void Matrix::keyboardFill() 
 {
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < str; i++)
     {
         std::cout << "Вводим " << i + 1 << " строку\n";
-        for (int j = 0; j < m; j++)
+        for (int j = 0; j < row; j++)
         {
             printf("Введите целое число: ");
             std::cin >> arr[i][j];
@@ -177,18 +181,17 @@ int Matrix::quickSort(int size)
         int i = 0;
         int j = size-1;
         int k1 = 0, k2 = 0;
-
-        int mid = negCount_row(arr[n][size / 2]);
-        for (int k = 0; k < n; k++)
+        int mid = negCount_row(arr[str][size / 2]);
+        for (int k = 0; k < str; k++)
         {
             do
             {
-                while (arr[n][i] < mid)
+                while (arr[str][i] < mid)
                 {
                     k1 = negCount_row(i);
                     i++;
                 }
-                while (arr[n][j] > mid)
+                while (arr[str][j] > mid)
                 {
                     k2 = negCount_row(j);
                     j--;
@@ -216,10 +219,10 @@ int Matrix::quickSort(int size)
 
 int Matrix::negCount_row(int a)
 {
-    if (a < m)
+    if (a < row)
     {
-        double c = 0;
-        for (int j = 0; j < n; j++) 
+        int c = 0;
+        for (int j = 0; j < str; j++) 
         {
             if (arr[j][a] < 0) c += 1;
         }
@@ -227,7 +230,116 @@ int Matrix::negCount_row(int a)
     }
 }
 
+void get()
+{
+    if (!cin) // проверка на ошибку ввода
+    { // пользователь ввёл не int
+        cin.clear(); // сбрасываем флаг ошибки
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // сбрасываем невалидный ввод
+    }
+}
+
+void menu()
+{
+    printf("Введите число для выбора функции, чтобы:\n");
+    printf("1: Создать матрицу.\n");
+    cout << "2: Заполнить массив с клавиатуры.\n";
+    cout << "3: Заполнить массив случайными числами.\n";
+    cout << "4 : Быстро вывести массив.\n";
+    cout << "5 : Отсортировать столбцы по неубыванию отрицательных элементов.\n";
+    cout << "6 : Поменять строки местами\n";
+    cout << "7 : Поменять столбцы местами\n";
+    cout << "8 : Задать элемент по индексу\n";
+    printf("Введите exit для окончания раоботы\n");
+    printf("Введите clear для очистки экрана\n");
+}
+
 int main()
 {
-    std::cout << "Hello World!\n";
+    setlocale(LC_ALL, "Rus");
+    string fill = "*";
+    bool flag = true;
+    int n = 0;
+    int m = 0;
+    Matrix matrix(n, m);
+    while (flag)
+    {
+        menu();
+        cin >> fill;
+        if (fill == "1")
+        {
+            matrix.clean();
+            do
+            {
+                cout << "Введите размеры матрицы";
+                cin >> n >> m;
+                get();
+                printf("\n");
+            } while (n <= 0 || m <= 0);
+            matrix.create(n, m);            
+        }
+        if (fill == "2") 
+        {
+            if (n!=0 || m!=0)
+            matrix.keyboardFill();          
+        }
+        if (fill == "3") {
+            srand(time(NULL));
+            if (n!=0 || m!=0)
+            matrix.randFill();           
+        }
+        if (fill == "4")
+        {
+            matrix.printMas();
+            printf("\n");         
+        }
+        if (fill == "5") {
+            
+            if (n != 0 || m != 0) 
+            {
+                matrix.quickSort(m);
+                matrix.printMas();
+            }
+            else
+            {
+                cout << "Матрица пуста\n";
+            }
+        }
+        if (fill == "clear")
+        {
+            system("cls");
+        }
+        if (fill == "exit")
+        {
+            printf("Спасибо за использование программы!\n");
+            flag = false;
+        }
+        if (fill == "6") 
+        {
+            int a=0, b=0;
+            cout << "Введите строки которые вы хотите поменять местами: ";
+            cin >> a >> b;
+            if (abs(a) < n && abs(b) < n) matrix.swapstr(a - 1, b - 1);
+            else cout << "Не правильный номер строки";
+        }
+        if (fill == "7")
+        {
+            int a = 0, b = 0;
+            cout << "Введите столбцы которые вы хотите поменять местами: ";
+            cin >> a >> b;
+            if (abs(a) < m && abs(b) < m) matrix.swaprow(a - 1, b - 1);
+            else cout << "Не правильный номер стобца";
+        }
+        if (fill == "8")
+        {
+            int a = 0, b = 0;
+            cout << "Введите индекс элемента, который вы хотите поменять: ";
+            cin >> a >> b;
+            int c = 0;
+            cout << "\nВведите элемент: ";
+            int ok = scanf("%d", &c);
+            if (ok) matrix.setElement(a + 1, b + 1,c);
+        }
+    }
+    return 0;
 }
