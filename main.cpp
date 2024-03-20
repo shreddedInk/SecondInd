@@ -10,7 +10,7 @@ class Matrix
 {
 private:
     int str;
-    int row;
+    int col;
     double** arr = nullptr;
 public:
     void setElement(int a, int b, double c);
@@ -27,16 +27,14 @@ public:
     void printMas(int, int, int) const;
 
     int swapstr(int, int);
-    int swaprow(int, int);
-    int quickSort(int);
+    int swapcol(int, int);
     void randFill();
     void keyboardFill();
-    int negCount_row(int);
 };
 
 void Matrix::setElement(int a, int b, double c)
 {
-    if (a < str && b < row)
+    if (a < str && b < col)
     {
         arr[a][b] = c;
     }
@@ -49,7 +47,7 @@ int Matrix::getN() const
 
 int Matrix::getM() const
 {
-    return row;
+    return col;
 }
 
 double Matrix::getElement(int a, int b) const
@@ -59,7 +57,7 @@ double Matrix::getElement(int a, int b) const
 
 int Matrix::swapstr(int a, int b)
 {
-    if (a < str and b < row)
+    if (a < str and b < str)
     {
         double* tmp = new double[str];
         tmp = arr[a];
@@ -71,13 +69,14 @@ int Matrix::swapstr(int a, int b)
     else return -1;
 }
 
-int Matrix::swaprow(int a, int b)
+int Matrix::swapcol(int a, int b)
 {
-    if (a < row and b < row)
+    double tmp = 0;
+    if (a < col and b < col)
     {
-        for (int k = 0; k < row; k++)
+        for (int k = 0; k < str; k++)
         {
-            double tmp = arr[k][a];
+            tmp = arr[k][a];
             arr[k][a] = arr[k][b];
             arr[k][b] = tmp;
         }
@@ -96,14 +95,14 @@ void Matrix::clean()
         delete[] arr;
     }
     str = 0;
-    row = 0;
+    col = 0;
     arr = nullptr;
 }
 
 Matrix::Matrix(int k, int p)
 {
     str = k;
-    row = p;
+    col = p;
     arr = new double* [k];
     for (int i = 0; i < k; i++)
     {
@@ -115,7 +114,7 @@ Matrix::Matrix(int k, int p)
 void Matrix::create(int k, int p)
 {
     str = k;
-    row = p;
+    col = p;
     arr = new double* [k];
     for (int i = 0; i < k; i++)
     {
@@ -128,9 +127,9 @@ void Matrix::printMas() const
 {
     for (int i = 0; i < str; i++)
     {
-        for (int j = 0; j < row; j++)
+        for (int j = 0; j < col; j++)
         {
-            printf("%.5lf ", arr[i][j]);
+            printf("%7.2lf ", arr[i][j]);
         }
         printf("\n");
     }
@@ -142,7 +141,7 @@ void Matrix::printMas(int a, int b, int rad) const
     {
         for (int j = b; j < b + rad; j++)
         {
-            printf("%.5lf ", arr[i][j]);
+            printf("%7.2lf ", arr[i][j]);
         }
         printf("\n");
     }
@@ -152,9 +151,9 @@ void Matrix::randFill()
 {
     for (int i = 0; i < str; i++)
     {
-        for (int j = 0; j < row; j++)
+        for (int j = 0; j < col; j++)
         {
-            arr[i][j] = 1 + rand() % 200 - 100;
+            arr[i][j] = (1 + rand() % 400 - 200)*0.1;
         }
     }
     printf("\n");
@@ -164,78 +163,81 @@ void Matrix::keyboardFill()
 {
     for (int i = 0; i < str; i++)
     {
-        std::cout << "Вводим " << i + 1 << " строку\n";
-        for (int j = 0; j < row; j++)
+        cout << "Вводим " << i + 1 << " строку\n";
+        for (int j = 0; j < col; j++)
         {
             printf("Введите целое число: ");
-            std::cin >> arr[i][j];
+            cin >> arr[i][j];
         }
     }
     printf("\n");
 }
 
-int Matrix::quickSort(int size)
+void quickSort(Matrix& M,int* Keys, int left, int right)
 {
-    if (arr != nullptr)
-    {
-        int i = 0;
-        int j = size-1;
+        int i = left;
+        int j = right;
+        int tmp = 0;
         int k1 = 0, k2 = 0;
-        int mid = negCount_row(arr[str][size / 2]);
-        for (int k = 0; k < str; k++)
-        {
+        int mid = Keys[(right+left) / 2];
             do
             {
-                while (arr[str][i] < mid)
+                while (Keys[i] > mid && i<right)
                 {
-                    k1 = negCount_row(i);
                     i++;
                 }
-                while (arr[str][j] > mid)
+                while (Keys[j] < mid && j>left)
                 {
-                    k2 = negCount_row(j);
                     j--;
                 }
-                if (k2 >= k1)
+                if (i <= j)
                 {
-                    swaprow(i, j);
-
+                    tmp = Keys[i];
+                    Keys[i] = Keys[j];
+                    Keys[j] = tmp;
+                    M.swapcol(i, j);
                     i++;
                     j--;
                 }
             } while (i <= j);
-            if (j > 0)
+            if (left < i)
             {
-                quickSort(j + 1); // Левый кусок
+                quickSort(M, Keys, left,j); // Левый кусок
             }
-            if (i < size)
+            if (i < right)
             {
-                quickSort(size-i); // Правый кусок
+                quickSort(M, Keys, i,right); // Правый кусок
             }
-        }
-    }
-    else return -3;
 }
 
-int Matrix::negCount_row(int a)
+void Sort(Matrix& M)
 {
-    if (a < row)
+    int n = M.getN();
+    int m = M.getM();
+    int* Keys = new int[m];
+    int i = 0, j = 0;
+    for (j = 0; j < m; j++)
     {
-        int c = 0;
-        for (int j = 0; j < str; j++) 
+        Keys[j] = 0;
+        for (i = 0; i < n; i++)
         {
-            if (arr[j][a] < 0) c += 1;
+            if (M.getElement(i, j) < 0) Keys[j]++;
         }
-        return c;
     }
+    for (i=0; i < m; i++) cout << Keys[i];
+    printf("\n");
+    quickSort(M, Keys, 0,m-1);
+    for (i=0; i < m; i++) cout << Keys[i];
+    printf("\n");
+    delete[] Keys;
 }
 
 void get()
 {
-    if (!cin) // проверка на ошибку ввода
-    { // пользователь ввёл не int
-        cin.clear(); // сбрасываем флаг ошибки
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // сбрасываем невалидный ввод
+    if (!cin)
+    { 
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 }
 
@@ -245,11 +247,11 @@ void menu()
     printf("1: Создать матрицу.\n");
     cout << "2: Заполнить массив с клавиатуры.\n";
     cout << "3: Заполнить массив случайными числами.\n";
-    cout << "4 : Быстро вывести массив.\n";
-    cout << "5 : Отсортировать столбцы по неубыванию отрицательных элементов.\n";
-    cout << "6 : Поменять строки местами\n";
-    cout << "7 : Поменять столбцы местами\n";
-    cout << "8 : Задать элемент по индексу\n";
+    cout << "4: Быстро вывести массив.\n";
+    cout << "5: Отсортировать столбцы по неубыванию отрицательных элементов.\n";
+    cout << "6: Поменять строки местами\n";
+    cout << "7: Поменять столбцы местами\n";
+    cout << "8: Задать элемент по индексу\n";
     printf("Введите exit для окончания раоботы\n");
     printf("Введите clear для очистки экрана\n");
 }
@@ -271,7 +273,7 @@ int main()
             matrix.clean();
             do
             {
-                cout << "Введите размеры матрицы";
+                cout << "Введите размеры матрицы ";
                 cin >> n >> m;
                 get();
                 printf("\n");
@@ -297,8 +299,9 @@ int main()
             
             if (n != 0 || m != 0) 
             {
-                matrix.quickSort(m);
+                Sort(matrix);
                 matrix.printMas();
+                printf("\n");
             }
             else
             {
@@ -327,7 +330,7 @@ int main()
             int a = 0, b = 0;
             cout << "Введите столбцы которые вы хотите поменять местами: ";
             cin >> a >> b;
-            if (abs(a) < m && abs(b) < m) matrix.swaprow(a - 1, b - 1);
+            if (abs(a) < m && abs(b) < m) matrix.swapcol(a - 1, b - 1);
             else cout << "Не правильный номер стобца";
         }
         if (fill == "8")
