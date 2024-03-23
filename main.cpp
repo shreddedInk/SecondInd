@@ -15,7 +15,7 @@ private:
     double** arr = nullptr;
     int radius = 5;
 public:
-    void setElement(int , int , double );
+    void setElement(int, int, double);
     void setRad(int);
 
     int getN() const;
@@ -44,8 +44,6 @@ public:
 int Matrix::Sec()
 {
     int c = 0;
-    printf("Вы точно хотите перезаписать данные?\n");
-    printf("Обратного шага не будет\n");
     printf("Чтобы подтвердить операцию введите enter\n");
     printf("Иначе введите любой другой символ\n");
     c = _getch();
@@ -325,99 +323,99 @@ void menu()
     cout << "8: Задать элемент по индексу\n";
     cout << "9: Открыть редактор\n";
     printf("Введите change, чтобы изменить радиус\n");
-    printf("Введите exit для окончания раоботы\n");
     printf("Введите clear для очистки экрана\n");
+    printf("Введите exit для окончания раоботы\n");
 }
 
 int Matrix::redactor()
 {
-        int c = 0;
-        int x = 0, y = 0;
-        int px = 0, py = 0;
-        double el;
-        while (c != 27)
+    int c = 0;
+    int x = 0, y = 0;
+    int px = 0, py = 0;
+    double el;
+    while (c != 27)
+    {
+        printsticks('-');
+        c = _getch();
+        if (c == 224) c = _getch();
+        if (c == 75 && x < radius && y - 1 < radius && x >= 0 && y - 1 >= 0 && x < str - px && y - 1 < col - py)
         {
-            printsticks('-');
-            c = _getch();
-            if (c == 224) c = _getch();
-            if (c == 75 && x < radius && y - 1 < radius && x >= 0 && y - 1 >= 0 && x < str - px && y - 1 < col - py)
+            y -= 1;
+            Display(px, py, radius, x, y);
+        }
+        else {
+            if (c == 77 && x < radius && y + 1 < radius && x >= 0 && y + 1 >= 0 && x < str - px && y + 1 < col - py)
             {
-                y -= 1;
+                y += 1;
                 Display(px, py, radius, x, y);
             }
             else {
-                if (c == 77 && x < radius && y + 1 < radius && x >= 0 && y + 1 >= 0 && x < str - px && y + 1 < col - py)
+                if (c == 72 && x - 1 < radius && y < col && x - 1 >= 0 && y >= 0 && x - 1 < str - px && y < col - py)
                 {
-                    y += 1;
+                    x -= 1;
                     Display(px, py, radius, x, y);
                 }
                 else {
-                    if (c == 72 && x - 1 < radius && y < col && x - 1 >= 0 && y >= 0 && x - 1 < str - px && y < col - py)
+                    if (c == 80 && x + 1 < radius && y < radius && x + 1 >= 0 && y >= 0 && x + 1 < str - px && y < col - py)
                     {
-                        x -= 1;
+                        x += 1;
                         Display(px, py, radius, x, y);
                     }
-                    else {
-                        if (c == 80 && x + 1 < radius && y < radius && x + 1 >= 0 && y >= 0 && x + 1 < str - px && y < col - py)
+                    else
+                    {
+                        if (c == 52 && px <= str && py <= col && px >= 0 && py - radius >= 0)
                         {
-                            x += 1;
+                            py -= radius;
+                            x = y = 0;
                             Display(px, py, radius, x, y);
                         }
-                        else
-                        {
-                            if (c == 52 && px <= str && py <= col && px >= 0 && py - radius >= 0)
+                        else {
+                            if (str % radius != 0 && c == 54 && px <= str && py + radius <= col && px >= 0 && py + radius >= 0 ||
+                                str % radius == 0 && c == 54 && px <= str && py + 2 * radius <= col && px >= 0 && py + radius >= 0)
                             {
-                                py -= radius;
+                                py += radius;
                                 x = y = 0;
                                 Display(px, py, radius, x, y);
                             }
                             else {
-                                if (str % radius != 0 && c == 54 && px <= str && py + radius <= col && px >= 0 && py + radius >= 0 ||
-                                    str % radius == 0 && c == 54 && px <= str && py + 2 * radius <= col && px >= 0 && py + radius >= 0)
+                                if (c == 56 && px <= str && py + radius <= col && px - radius >= 0 && py >= 0)
                                 {
-                                    py += radius;
+                                    px -= radius;
                                     x = y = 0;
                                     Display(px, py, radius, x, y);
                                 }
                                 else {
-                                    if (c == 56 && px <= str && py + radius <= col && px - radius >= 0 && py >= 0)
+                                    if (col % radius != 0 && c == 50 && px + radius <= str && py <= col && px + radius >= 0 && py >= 0 ||
+                                        col % radius == 0 && c == 50 && px + 2 * radius <= str && py <= col && px + radius >= 0 && py >= 0)
                                     {
-                                        px -= radius;
+                                        px += radius;
                                         x = y = 0;
                                         Display(px, py, radius, x, y);
                                     }
-                                    else {
-                                        if (col % radius != 0 && c == 50 && px + radius <= str && py <= col && px + radius >= 0 && py >= 0 ||
-                                            col % radius == 0 && c == 50 && px + 2 * radius <= str && py <= col && px + radius >= 0 && py >= 0)
+                                    else
+                                    {
+                                        if (c == 13 && x >= 0 && y >= 0)
                                         {
-                                            px += radius;
-                                            x = y = 0;
-                                            Display(px, py, radius, x, y);
-                                        }
-                                        else
-                                        {
-                                            if (c == 13 && x >= 0 && y >= 0)
+                                            if (Sec())
                                             {
-                                                if (Sec())
-                                                {
-                                                    printf("Введите новое значение элемента:\n");
-                                                    cin >> el;
-                                                    setElement(x, y, el);
-                                                }
+                                                printf("Введите новое значение элемента:\n");
+                                                cin >> el;
+                                                setElement(x, y, el);
                                             }
-                                            else Display(px, py, radius, x, y);
                                         }
+                                        else Display(px, py, radius, x, y);
                                     }
                                 }
                             }
-
                         }
+
                     }
                 }
             }
-            printf("\n\n\n\n");
         }
-        return 0;
+        printf("\n\n\n\n");
+    }
+    return 0;
 }
 
 int main()
@@ -515,6 +513,7 @@ int main()
             int change = 0;
             cout << "Введите значение радиуса: ";
             cin >> change;
+            matrix.setRad(change);
             printf("\n");
         }
     }
