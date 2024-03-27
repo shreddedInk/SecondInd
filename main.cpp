@@ -27,17 +27,21 @@ public:
     Matrix(int, int);
 
     void printMas() const;
-    void printsticks(char);
+    void printsticks(char,int);
     int Display(int, int, int) const;
     int Display(int, int, int, int, int);
     int DisplayElement(int, int);
 
     int swapstr(int, int);
     int swapcol(int, int);
+    
     void randFill();
     void keyboardFill();
+    int fileFill(string);
+    void output(string);
 
     int Sec();
+    int teleport(int& a, int& b, int rad, int& x, int& y);
     int redactor();
 };
 
@@ -114,7 +118,7 @@ void Matrix::clean()
     {
         for (int i = 0; i < str; i++)
         {
-            if (arr[i] != nullptr) delete[] arr[i];
+            delete[] arr[i];
         }
         delete[] arr;
     }
@@ -167,7 +171,7 @@ int Matrix::Display(int a, int b, int rad) const
         {
             for (int j = b; j < b + rad; j++)
             {
-                printf("%7.2lf  ", arr[i][j]);
+                printf("%10.4lf  ", arr[i][j]);
             }
             printf("\n");
         }
@@ -176,7 +180,7 @@ int Matrix::Display(int a, int b, int rad) const
     else return -1;
 }
 
-void Matrix::printsticks(char c)
+void Matrix::printsticks(char c, int radius)
 {
     for (int i = 0; i < radius * 14; i++)
     {
@@ -206,7 +210,7 @@ int Matrix::Display(int a, int b, int rad, int x, int y)
                 }
             }
             printf("\n");
-            printsticks('-');
+            printsticks('-', rad);
         }
         printf("Координаты страницы: (%d, %d) \t Координаты элемента: (%d, %d) \t Значение элемента: (%E)\n", a / rad, b / rad, a + x, b + y, arr[x][y]);
         return 0;
@@ -245,13 +249,62 @@ void Matrix::keyboardFill()
         for (int j = 0; j < col; j++)
         {
             printf("Введите целое число: ");
-            cin >> arr[i][j];
+            std::cin >> arr[i][j];
         }
     }
     printf("\n");
 }
 
-void quickSort(Matrix& M, int* Keys, int left, int right)
+int Matrix::fileFill(string name)
+{
+    FILE* f = fopen(name.data(), "r");
+    int fstr, fcol;
+    string ans = "*";
+    if (f == nullptr)
+    {
+        printf("Некорректное название файла\n");
+        return -1;
+    }
+    else
+    {
+        if (arr != nullptr) 
+        {
+            clean();
+        }
+        fscanf_s(f, "%d", &fstr);
+        fscanf_s(f, "%d", &fcol);
+        create(fstr, fcol);
+        str = fstr;
+        col = fcol;
+        for (int i = 0; i < fstr; i++)
+        {
+            for (int j = 0; j < fcol; j++)
+            {
+                fscanf_s(f, "%lf", &arr[i][j]);
+            }
+        }
+        fclose(f);
+        return 0;
+    }
+}
+
+
+void Matrix::output(string name)
+{
+        FILE* f = fopen(name.data(), "w");
+        fprintf(f, "%d ", str);
+        fprintf(f, "%d ", col);
+        for (int i = 0; i < str; i++)
+        {
+            for (int j = 0; j < col; j++)
+            {
+                fprintf(f, "%f ", arr[i][j]);
+            }
+        }
+        fclose(f);
+}
+
+void quickSort(Matrix& M, long long* Keys, int left, int right)
 {
     int i = left;
     int j = right;
@@ -264,7 +317,7 @@ void quickSort(Matrix& M, int* Keys, int left, int right)
         {
             i++;
         }
-        while (Keys[j] < mid && j>left)
+        while (Keys[j] < mid && j > left)
         {
             j--;
         }
@@ -292,7 +345,7 @@ void Sort(Matrix& M)
 {
     int n = M.getN();
     int m = M.getM();
-    int* Keys = new int[m];
+    long long* Keys = new long long[m];
     int i = 0, j = 0;
     for (j = 0; j < m; j++)
     {
@@ -312,108 +365,199 @@ void Sort(Matrix& M)
 
 void menu()
 {
-    printf("Введите число для выбора функции, чтобы:\n");
-    printf("1: Создать матрицу.\n");
-    cout << "2: Заполнить массив с клавиатуры.\n";
-    cout << "3: Заполнить массив случайными числами.\n";
-    cout << "4: Быстро вывести массив.\n";
+    cout << "Введите число для выбора функции, чтобы:\n";
+    cout << "1: Создать матрицу.\n";
+    cout << "2: Заполнить матрицу с клавиатуры.\n";
+    cout << "3: Заполнить матрицу случайными числами.\n";
+    cout << "4: Заполнить матрицу из файла или бинарного.\n";
     cout << "5: Отсортировать столбцы по неубыванию отрицательных элементов.\n";
     cout << "6: Поменять строки местами\n";
     cout << "7: Поменять столбцы местами\n";
     cout << "8: Задать элемент по индексу\n";
     cout << "9: Открыть редактор\n";
-    printf("Введите change, чтобы изменить радиус\n");
-    printf("Введите clear для очистки экрана\n");
-    printf("Введите exit для окончания раоботы\n");
+    cout << "Введите change, чтобы изменить радиус\n";
+    cout << "Введите clear для очистки экрана и матрицы\n";
+    cout << "Введите exit для окончания работы\n";
+    cout << "Введите output, чтобы экспортировать матрицу в файл\n";
+}
+
+int Matrix::teleport(int& a, int& b, int rad, int& x, int& y)
+{
+    if (x >= 0 && x < str && y >= 0 && y < col)
+    {
+        a = (x / rad) * rad;
+        b = (y / rad) * rad;
+        x %= rad;
+        y %= rad;
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 int Matrix::redactor()
 {
-    int c = 0;
+    int c = 0, a = 0, error = 0, er = 0;;
+    int root = 0;
+    int radius = 5;
     int x = 0, y = 0;
+    int x1 = 0, y1 = 0;
     int px = 0, py = 0;
+    string name;
     double el;
     while (c != 27)
     {
-        printsticks('-');
-        c = _getch();
         if (c == 224) c = _getch();
-        if (c == 75 && x < radius && y - 1 < radius && x >= 0 && y - 1 >= 0 && x < str - px && y - 1 < col - py)
+        if (c == 116)
+        {
+            printf("Введите индексы элемента\n");
+            scanf_s("%d %d", &x1, &y1);
+            if (px <= str && py <= col && px >= 0 && py >= 0 && x1 < str && y1 < col)
+            {
+                x = x1;
+                y = y1;
+                teleport(px, py, radius, x, y);
+            }
+        }
+
+        if (c == 114)
+        {
+            printf("Введите желаемые размеры радиуса\n");
+            scanf_s("%d", &x1);
+            if (x1 > 0) radius = x1;
+            else printf("Некорректные размеры радиуса");
+
+        }
+
+
+        if (c == 104)
+        {
+            printf("Чтобы выбрать элемент используйте стрелочки\n");
+            printf("Чтобы выбрать перемещаться по страницам используйте стрелочки на numpad\n");
+            printf("Чтобы осуществить ввод с файл введите 'f'\n");
+            printf("Чтобы переститься на элемент по координатам введите 't'\n");
+            printf("Чтобы изменить значение выделенного элемента нажмите 'enter'\n");
+            printf("Чтобы изменить размер страницы 'r'\n");
+            printf("Чтобы получить взять на себя ответственность за редактирование объектов нажмите 'f1'\n");
+            printf("Чтобы выйти из программы 'esc'\n");
+
+
+        }
+
+        if (c == 13)
+        {
+            if (Sec())
+            {
+                printf("Введите новое значение элемента:\n");
+                er = scanf("%lf", &el);
+                while (er != 1)
+                {
+                    printf("Введите корректное значение\n");
+                    fflush(stdin);
+                    er = scanf("%lf", &el);
+                }
+                setElement(x, y, el);
+            }
+        }
+
+        if (c == 59)
+        {
+            printf("Вы уверены, что хотите убрать защиту на измение данных?\n");
+            printf("Если да, то нажмите 1\n");
+            printf("Если нет, то нажмите любую другую кнопку\n");
+            a = _getch();
+            if (a == 49) root = 1;
+            else root = 0;
+        }
+
+        if (c == 102)
+        {
+            if (Sec())
+            {
+                printf("\n");
+                printf("\n");
+                printf("Введите имя файла, из которого вы хотите заполнить матрицу\n");
+                cin >> name;
+                error = fileFill(name);
+                if (error != 0)
+                {
+                    printf("\n");
+                    printf("Ошибка файла\n");
+                }
+            }
+        }
+        printsticks('-', radius);
+        //Элемент внутри страницы
+        if (c == 75 && y - 1 >= 0)
         {
             y -= 1;
-            Display(px, py, radius, x, y);
         }
-        else {
-            if (c == 77 && x < radius && y + 1 < radius && x >= 0 && y + 1 >= 0 && x < str - px && y + 1 < col - py)
-            {
-                y += 1;
-                Display(px, py, radius, x, y);
-            }
-            else {
-                if (c == 72 && x - 1 < radius && y < col && x - 1 >= 0 && y >= 0 && x - 1 < str - px && y < col - py)
-                {
-                    x -= 1;
-                    Display(px, py, radius, x, y);
-                }
-                else {
-                    if (c == 80 && x + 1 < radius && y < radius && x + 1 >= 0 && y >= 0 && x + 1 < str - px && y < col - py)
-                    {
-                        x += 1;
-                        Display(px, py, radius, x, y);
-                    }
-                    else
-                    {
-                        if (c == 52 && px <= str && py <= col && px >= 0 && py - radius >= 0)
-                        {
-                            py -= radius;
-                            x = y = 0;
-                            Display(px, py, radius, x, y);
-                        }
-                        else {
-                            if (str % radius != 0 && c == 54 && px <= str && py + radius <= col && px >= 0 && py + radius >= 0 ||
-                                str % radius == 0 && c == 54 && px <= str && py + 2 * radius <= col && px >= 0 && py + radius >= 0)
-                            {
-                                py += radius;
-                                x = y = 0;
-                                Display(px, py, radius, x, y);
-                            }
-                            else {
-                                if (c == 56 && px <= str && py + radius <= col && px - radius >= 0 && py >= 0)
-                                {
-                                    px -= radius;
-                                    x = y = 0;
-                                    Display(px, py, radius, x, y);
-                                }
-                                else {
-                                    if (col % radius != 0 && c == 50 && px + radius <= str && py <= col && px + radius >= 0 && py >= 0 ||
-                                        col % radius == 0 && c == 50 && px + 2 * radius <= str && py <= col && px + radius >= 0 && py >= 0)
-                                    {
-                                        px += radius;
-                                        x = y = 0;
-                                        Display(px, py, radius, x, y);
-                                    }
-                                    else
-                                    {
-                                        if (c == 13 && x >= 0 && y >= 0)
-                                        {
-                                            if (Sec())
-                                            {
-                                                printf("Введите новое значение элемента:\n");
-                                                cin >> el;
-                                                setElement(x, y, el);
-                                            }
-                                        }
-                                        else Display(px, py, radius, x, y);
-                                    }
-                                }
-                            }
-                        }
+        else if (c == 75 && y == 0 && py != 0)
+        {
+            y = radius - 1;
+            py -= radius;
+        }
 
-                    }
-                }
-            }
+        if (c == 77 && y + 1 < radius && y + 1 < col - py)
+        {
+            y += 1;
         }
+        else if (c == 77 && y == radius - 1 && y + 1 < col - py)
+        {
+            y = 0;
+            py += radius;
+        }
+
+        if (c == 72 && x - 1 >= 0)
+        {
+            x -= 1;
+        }
+        else if (c == 72 && x == 0 && px != 0)
+        {
+            x = radius - 1;
+            px -= radius;
+        }
+
+        if (c == 80 && x + 1 < radius && x + 1 < str - px)
+        {
+            x += 1;
+        }
+        else if (c == 80 && x == radius - 1 && x + 1 < str - px)
+        {
+            x = 0;
+            px += radius;
+        }
+
+        //страницы
+        if (c == 52 && py > 0)
+        {
+            py -= radius;
+            x = y = 0;
+        }
+
+        if (str % radius != 0 && c == 54 && py + radius <= col ||
+            str % radius == 0 && c == 54 && py + 2 * radius <= col)
+        {
+            py += radius;
+            x = y = 0;
+        }
+        if (c == 56 && px > 0)
+        {
+            px -= radius;
+            x = y = 0;
+        }
+        if (col % radius != 0 && c == 50 && px + radius <= str ||
+            col % radius == 0 && c == 50 && px + 2 * radius <= str)
+        {
+            px += radius;
+            x = y = 0;
+        }
+        Display(px, py, radius, x, y);
+        printf("Для вывода подсказок по управлению введите h\n");
         printf("\n\n\n\n");
+        c = _getch();
     }
     return 0;
 }
@@ -422,6 +566,8 @@ int main()
 {
     setlocale(LC_ALL, "Rus");
     string fill = "*";
+    string name="*";
+    char ans = '*';
     bool flag = true;
     int n = 0;
     int m = 0;
@@ -444,24 +590,47 @@ int main()
         if (fill == "2")
         {
             if (n != 0 || m != 0)
-                matrix.keyboardFill();
+            {
+                cout << "Данные изменятся, вы уверены, что хотите продолжить?\n";
+                cout << "Y / N\n";
+                cin >> ans;
+                if (ans == 'Y' || ans =='y')
+                {
+                    matrix.keyboardFill();
+                }
+            }
         }
-        if (fill == "3") {
-            srand(time(NULL));
-            if (n != 0 || m != 0)
-                matrix.randFill();
+        if (fill == "3") 
+        {
+            cout << "Данные изменятся, вы уверены, что хотите продолжить?\n";
+            cout << "Y / N\n";
+            cin >> ans;
+            if (ans == 'Y' || ans == 'y')
+            {
+                srand(time(NULL));
+                if (n != 0 || m != 0)
+                    matrix.randFill();
+            }
         }
         if (fill == "4")
         {
-            matrix.printMas();
-            printf("\n");
+            cout << "Данные изменятся, вы уверены, что хотите продолжить?\n";
+            cout << "Y / N\n";
+            cin >> ans;
+            if (ans == 'Y' || ans == 'y')
+            {
+                cout << "\nВведите название файла заполнения: " << endl;
+                cin >> name;
+                matrix.fileFill(name);
+                matrix.printMas();
+                printf("\n");
+            }
         }
         if (fill == "5") {
 
             if (n != 0 || m != 0)
             {
                 Sort(matrix);
-                matrix.printMas();
                 printf("\n");
             }
             else
@@ -471,6 +640,7 @@ int main()
         }
         if (fill == "clear")
         {
+            matrix.clean();
             system("cls");
         }
         if (fill == "exit")
@@ -514,6 +684,13 @@ int main()
             cout << "Введите значение радиуса: ";
             cin >> change;
             matrix.setRad(change);
+            printf("\n");
+        }
+        if (fill == "output")
+        {
+            cout << "Введите имя файла для вывода: \n";
+            cin >> name;
+            matrix.output(name);
             printf("\n");
         }
     }
