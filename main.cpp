@@ -375,7 +375,6 @@ void menu()
     cout << "7: Поменять столбцы местами\n";
     cout << "8: Задать элемент по индексу\n";
     cout << "9: Открыть редактор\n";
-    cout << "Введите change, чтобы изменить радиус\n";
     cout << "Введите clear для очистки экрана и матрицы\n";
     cout << "Введите exit для окончания работы\n";
     cout << "Введите output, чтобы экспортировать матрицу в файл\n";
@@ -622,6 +621,8 @@ int main()
                 cout << "\nВведите название файла заполнения: " << endl;
                 cin >> name;
                 matrix.fileFill(name);
+                n = matrix.getN();
+                m = matrix.getM();
                 matrix.printMas();
                 printf("\n");
             }
@@ -678,20 +679,16 @@ int main()
         {
             matrix.redactor();
         }
-        if (fill == "change")
-        {
-            int change = 0;
-            cout << "Введите значение радиуса: ";
-            cin >> change;
-            matrix.setRad(change);
-            printf("\n");
-        }
         if (fill == "output")
         {
             cout << "Введите имя файла для вывода: \n";
             cin >> name;
             matrix.output(name);
             printf("\n");
+        }
+        if (fill == "test")
+        {
+            matrix.printMas();
         }
     }
     return 0;
