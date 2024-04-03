@@ -623,7 +623,6 @@ int main()
                 matrix.fileFill(name);
                 n = matrix.getN();
                 m = matrix.getM();
-                matrix.printMas();
                 printf("\n");
             }
         }
@@ -655,7 +654,7 @@ int main()
             cout << "Введите строки которые вы хотите поменять местами: ";
             cin >> a >> b;
             if (abs(a) < n && abs(b) < n) matrix.swapstr(a - 1, b - 1);
-            else cout << "Не правильный номер строки";
+            else cout << "Неправильный номер строки";
         }
         if (fill == "7")
         {
@@ -663,7 +662,7 @@ int main()
             cout << "Введите столбцы которые вы хотите поменять местами: ";
             cin >> a >> b;
             if (abs(a) < m && abs(b) < m) matrix.swapcol(a - 1, b - 1);
-            else cout << "Не правильный номер стобца";
+            else cout << "Неправильный номер стобца";
         }
         if (fill == "8")
         {
